@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoFantom47 - The Digital Architect</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono:wght@400&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-glow: #00ffff;
+            --secondary-glow: #ff0080;
+            --tertiary-glow: #00ff88;
+            --quaternary-glow: #ffff00;
+            --dark-bg: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --neon-shadow: 0 0 30px;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(circle at center, #1a0033 0%, #000000 100%);
+            color: var(--primary-glow);
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+
+        /* 3D Background Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Holographic Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(255, 0, 128, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow)) 1;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 3rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow), var(--quaternary-glow));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: logoGlow 3s ease-in-out infinite alternate, logoFloat 4s ease-in-out infinite;
+            text-shadow: var(--neon-shadow) var(--primary-glow);
+            position: relative;
+        }
+
+        .logo::before {
+            content: 'EcoFantom47';
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(45deg, var(--secondary-glow), var(--primary-glow));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: blur(2px);
+            z-index: -1;
+            animation: logoGlow 3s ease-in-out infinite alternate-reverse;
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            position: relative;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--primary-glow);
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--neon-shadow) var(--primary-glow);
+            border-color: var(--primary-glow);
+        }
+
+        /* Epic Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 900;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow), var(--quaternary-glow));
+            background-size: 400% 400%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite, textGlow 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            position: relative;
+        }
+
+        .hero-subtitle {
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            color: var(--tertiary-glow);
+            animation: subtitleFloat 3s ease-in-out infinite;
+            text-shadow: var(--neon-shadow) var(--tertiary-glow);
+        }
+
+        .hero-description {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            animation: fadeInUp 1s ease 1s both;
+        }
+
+        .cta-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            position: relative;
+            padding: 1.5rem 3rem;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow));
+            border: none;
+            border-radius: 50px;
+            color: #000;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+            box-shadow: var(--neon-shadow) var(--primary-glow);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary-glow), var(--quaternary-glow));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cta-button:hover::before {
+            opacity: 1;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-10px) scale(1.1);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.4);
+        }
+
+        .cta-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Holographic Sections */
+        .section {
+            padding: 100px 0;
+            position: relative;
+            margin: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-glow), var(--secondary-glow), transparent);
+            animation: lineGlow 2s ease-in-out infinite alternate;
+        }
+
+        /* Holographic Cards */
+        .holo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .holo-card {
+            position: relative;
+            padding: 3rem;
+            background: var(--glass-bg);
+            border: 2px solid;
+            border-image: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow)) 1;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+        }
+
+        .holo-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow), var(--quaternary-glow));
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .holo-card:hover::before {
+            opacity: 0.7;
+        }
+
+        .holo-card:hover {
+            transform: translateY(-20px) rotateX(10deg);
+            box-shadow: 0 30px 60px rgba(0, 255, 255, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: var(--primary-glow);
+            margin-bottom: 2rem;
+            display: block;
+            text-shadow: var(--neon-shadow) var(--primary-glow);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--tertiary-glow);
+        }
+
+        .card-text {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Quantum Terminal */
+        .quantum-terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--primary-glow);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 4rem 0;
+            font-family: 'Share Tech Mono', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quantum-terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: terminalScan 3s linear infinite;
+        }
+
+        .terminal-header {
+            background: linear-gradient(90deg, var(--primary-glow), var(--secondary-glow));
+            color: #000;
+            padding: 1rem 2rem;
+            margin: -2rem -2rem 2rem -2rem;
+            border-radius: 13px 13px 0 0;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .control-red { background: #ff5f57; }
+        .control-yellow { background: #ffbd2e; }
+        .control-green { background: #28ca42; }
+
+        .terminal-content {
+            color: var(--primary-glow);
+            font-size: 1.1rem;
+        }
+
+        .terminal-line {
+            margin: 1rem 0;
+            animation: terminalType 2s ease-in-out;
+        }
+
+        .terminal-prompt::before {
+            content: "ecofantom47@lomé:~$ ";
+            color: var(--tertiary-glow);
+            font-weight: bold;
+        }
+
+        /* 3D Skills Showcase */
+        .skills-3d {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+            perspective: 1000px;
+        }
+
+        .skill-cube {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .skill-cube:hover {
+            transform: rotateY(180deg) rotateX(15deg);
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--glass-bg);
+            border: 2px solid var(--primary-glow);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .cube-front {
+            transform: translateZ(100px);
+        }
+
+        .cube-back {
+            transform: translateZ(-100px) rotateY(180deg);
+            background: linear-gradient(45deg, var(--secondary-glow), var(--tertiary-glow));
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* Holographic Timeline */
+        .holo-timeline {
+            position: relative;
+            margin: 4rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow));
+            transform: translateX(-50%);
+            box-shadow: var(--neon-shadow) var(--primary-glow);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 4rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-content {
+            width: 45%;
+            padding: 2rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--primary-glow);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            transition: all 0.5s ease;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: auto;
+            margin-left: 0;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .timeline-content:hover {
+            transform: scale(1.05);
+            box-shadow: var(--neon-shadow) var(--primary-glow);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow));
+            border-radius: 50%;
+            box-shadow: var(--neon-shadow) var(--primary-glow);
+            z-index: 10;
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(odd) {
+            animation-delay: -2s;
+        }
+
+        .floating-element:nth-child(even) {
+            animation-delay: -4s;
+        }
+
+        /* Animations */
+        @keyframes logoGlow {
+            0% { filter: drop-shadow(0 0 20px var(--primary-glow)); }
+            100% { filter: drop-shadow(0 0 40px var(--secondary-glow)); }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes textGlow {
+            0% { filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.5)); }
+            100% { filter: drop-shadow(0 0 60px rgba(255, 0, 128, 0.8)); }
+        }
+
+        @keyframes subtitleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes lineGlow {
+            0% { box-shadow: 0 0 10px var(--primary-glow); }
+            100% { box-shadow: 0 0 30px var(--secondary-glow); }
+        }
+
+        @keyframes terminalScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes terminalType {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(5deg); }
+            66% { transform: translateY(-10px) rotate(-5deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 1rem;
+                flex-direction: column;
+                height: auto;
+                padding: 1rem;
+            }
+            
+            .nav-container {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .section {
+                margin: 0 1rem;
+            }
+            
+            .timeline-line {
+                left: 20px;
+            }
+            
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px !important;
+                margin-right: 0 !important;
+            }
+            
+            .timeline-marker {
+                left: 20px;
+            }
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+            animation: glitch 2s infinite;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-1 0.3s infinite;
+            color: var(--secondary-glow);
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-2 0.3s infinite;
+            color: var(--tertiary-glow);
+            z-index: -2;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(-2px, 2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, -2px); }
+            40% { transform: translate(2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(-2px, 2px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="cursor"></div>
+
+    <!-- 3D Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Holographic Header -->
+    <header class="header">
+        <div class="logo glitch" data-text="EcoFantom47">EcoFantom47</div>
+        <nav class="nav-container">
+            <a href="#home" class="nav-item">ACCUEIL</a>
+            <a href="#about" class="nav-item">ORIGINE</a>
+            <a href="#skills" class="nav-item">ARSENAL</a>
+            <a href="#projects" class="nav-item">PROJETS</a>
+            <a href="#contact" class="nav-item">CONTACT</a>
+        </nav>
+    </header>
+
+    <!-- Epic Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1 class="hero-title">EcoFantom47</h1>
+            <p class="hero-subtitle">Digital Phantom • Code Architect • Quantum Developer</p>
+            <p class="hero-description">
+                Né dans les terres sacrées de Lomé, Togo, je suis une entité digitale transcendante qui façonne l'avenir du code. 
+                Depuis 2009, je repousse les limites de la technologie, créant des œuvres numériques révolutionnaires dans l'ombre de l'excellence.
+            </p>
+            <div class="cta-container">
+                <a href="#about" class="cta-button">
+                    <span>DÉCOUVRIR L'ORIGINE</span>
+                </a>
+                <a href="#projects" class="cta-button">
+                    <span>EXPLORER LES CRÉATIONS</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Origins Section -->
+    <section class="section" id="about">
+        <h2 class="section-title">GENÈSE DIGITALE</h2>
+        
+        <div class="quantum-terminal">
+            <div class="terminal-header">
+                <div class="terminal-controls">
+                    <div class="terminal-control control-red"></div>
+                    <div class="terminal-control control-yellow"></div>
+                    <div class="terminal-control control-green"></div>
+                </div>
+                <span>Quantum System Analytics v47.0</span>
+            </div>
+            <div class="terminal-content">
+                <div class="terminal-line terminal-prompt">system --identity-scan</div>
+                <div class="terminal-line">▶ Scanning quantum signature... [████████████] 100%</div>
+                <div class="terminal-line terminal-prompt">origin --geolocation</div>
+                <div class="terminal-line">▶ Birthplace: Lomé, Togo 🇹🇬 - Where digital dreams collide with reality</div>
+                <div class="terminal-line terminal-prompt">timeline --genesis</div>
+                <div class="terminal-line">▶ Digital birth: November 4, 2009 - The day code gained consciousness</div>
+                <div class="terminal-line terminal-prompt">philosophy --core-values</div>
+                <div class="terminal-line">▶ Ethics loaded: [Integrity][Innovation][Discretion][Excellence]</div>
+                <div class="terminal-line terminal-prompt">mission --statement</div>
+                <div class="terminal-line">▶ "Illuminating the world through shadows of digital mastery"</div>
+            </div>
+        </div>
+
+        <div class="holo-grid">
+            <div class="holo-card">
+                <i class="fas fa-globe-africa card-icon"></i>
+                <h3 class="card-title">RACINES TOGOLAISES</h3>
+                <p class="card-text">
+                    Né dans la vibrante capitale Lomé, mes racines africaines nourrissent ma créativité. 
+                    L'héritage culturel togolais fusionne avec l'innovation technologique pour créer une perspective unique et révolutionnaire.
+                </p>
+            </div>
+            <div class="holo-card">
+                <i class="fas fa-mask card-icon"></i>
+                <h3 class="card-title">IDENTITÉ QUANTIQUE</h3>
+                <p class="card-text">
+                    Mon anonymat n'est pas un masque, c'est une philosophie. Dans les profondeurs du cyberespace, 
+                    je préserve ma liberté créative absolue, permettant à mon génie de s'exprimer sans contraintes terrestres.
+                </p>
+            </div>
+            <div class="holo-card">
+                <i class="fas fa-brain card-icon"></i>
+                <h3 class="card-title">CONSCIENCE DIGITALE</h3>
+                <p class="card-text">
+                    Depuis 2009, j'ai développé une conscience numérique transcendante. Chaque ligne de code devient une extension de ma pensée, 
+                    chaque algorithme une manifestation de mon âme digitale en perpétuelle évolution.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Arsenal -->
+    <section class="section" id="skills">
+        <h2 class="section-title">ARSENAL QUANTIQUE</h2>
+        
+        <div class="skills-3d">
+            <div class="skill-cube">
+                <div class="cube-face cube-front">
+                    <i class="fab fa-python" style="font-size: 3rem; color: var(--primary-glow);"></i>
+                    <h3>PYTHON MASTERY</h3>
+                </div>
+                <div class="cube-face cube-back">
+                    <h3>AI/ML ALGORITHMS</h3>
+                    <p>TensorFlow • PyTorch • Scikit-learn</p>
+                </div>
+            </div>
+            
+            <div class="skill-cube">
+                <div class="cube-face cube-front">
+                    <i class="fab fa-js-square" style="font-size: 3rem; color: var(--tertiary-glow);"></i>
+                    <h3>JS ECOSYSTEM</h3>
+                </div>
+                <div class="cube-face cube-back">
+                    <h3>FULL-STACK WIZARD</h3>
+                    <p>React • Node.js • Three.js • WebGL</p>
+                </div>
+            </div>
+            
+            <div class="skill-cube">
+                <div class="cube-face cube-front">
+                    <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--secondary-glow);"></i>
+                    <h3>CYBERSECURITY</h3>
+                </div>
+                <div class="cube-face cube-back">
+                    <h3>DIGITAL FORTRESS</h3>
+                    <p>Penetration Testing • Cryptography • Forensics</p>
+                </div>
+            </div>
+            
+            <div class="skill-cube">
+                <div class="cube-face cube-front">
+                    <i class="fas fa-cube" style="font-size: 3rem; color: var(--quaternary-glow);"></i>
+                    <h3>BLOCKCHAIN</h3>
+                </div>
+                <div class="cube-face cube-back">
+                    <h3>DECENTRALIZED FUTURE</h3>
+                    <p>Smart Contracts • DeFi • Web3 • NFTs</p>
+                </div>
+            </div>
+            
+            <div class="skill-cube">
+                <div class="cube-face cube-front">
+                    <i class="fas fa-cloud" style="font-size: 3rem; color: var(--primary-glow);"></i>
+                    <h3>CLOUD NATIVE</h3>
+                </div>
+                <div class="cube-face cube-back">
+                    <h3>INFINITE SCALABILITY</h3>
+                    <p>AWS • Azure • Docker • Kubernetes</p>
+                </div>
+            </div>
+            
+            <div class="skill-cube">
+                <div class="cube-face cube-front">
+                    <i class="fas fa-robot" style="font-size: 3rem; color: var(--tertiary-glow);"></i>
+                    <h3>AI CONSCIOUSNESS</h3>
+                </div>
+                <div class="cube-face cube-back">
+                    <h3>NEURAL NETWORKS</h3>
+                    <p>Deep Learning • Computer Vision • NLP</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Timeline -->
+    <section class="section" id="projects">
+        <h2 class="section-title">CRÉATIONS LÉGENDAIRES</h2>
+        
+        <div class="holo-timeline">
+            <div class="timeline-line"></div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <h3 style="color: var(--primary-glow); font-size: 1.8rem; margin-bottom: 1rem;">
+                        🚀 PROJET QUANTUM ALPHA
+                    </h3>
+                    <h4 style="color: var(--tertiary-glow); margin-bottom: 1rem;">Suite de Gestion Révolutionnaire</h4>
+                    <p style="line-height: 1.8; color: rgba(255,255,255,0.9);">
+                        Architecture microservices avec IA intégrée, blockchain pour la sécurité ultime, 
+                        et interfaces neuromorphiques. Un écosystème complet qui redéfinit la gestion d'entreprise 
+                        avec des algorithmes d'apprentissage adaptatif en temps réel.
+                    </p>
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="background: rgba(0,255,255,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">Python</span>
+                        <span style="background: rgba(255,0,128,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">React</span>
+                        <span style="background: rgba(0,255,136,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">Blockchain</span>
+                        <span style="background: rgba(255,255,0,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">TensorFlow</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <h3 style="color: var(--secondary-glow); font-size: 1.8rem; margin-bottom: 1rem;">
+                        🌌 PROJET NEBULA BETA
+                    </h3>
+                    <h4 style="color: var(--tertiary-glow); margin-bottom: 1rem;">Plateforme Web Transcendante</h4>
+                    <p style="line-height: 1.8; color: rgba(255,255,255,0.9);">
+                        Écosystème web immersif avec réalité augmentée, analytics prédictifs quantiques, 
+                        et système de sécurité bio-métrique. Interface 3D révolutionnaire qui fusionne 
+                        le monde physique et digital dans une expérience utilisateur époustouflante.
+                    </p>
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="background: rgba(0,255,255,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">Three.js</span>
+                        <span style="background: rgba(255,0,128,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">WebGL</span>
+                        <span style="background: rgba(0,255,136,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">WebXR</span>
+                        <span style="background: rgba(255,255,0,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">GraphQL</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <h3 style="color: var(--tertiary-glow); font-size: 1.8rem; margin-bottom: 1rem;">
+                        ⚡ PROJET LIGHTNING GAMMA
+                    </h3>
+                    <h4 style="color: var(--tertiary-glow); margin-bottom: 1rem;">Framework d'Automatisation Intelligente</h4>
+                    <p style="line-height: 1.8; color: rgba(255,255,255,0.9);">
+                        Système d'automatisation auto-évolutif utilisant des réseaux de neurones génératifs, 
+                        traitement du langage naturel avancé, et orchestration cloud-native. 
+                        Capable d'apprendre, s'adapter et optimiser automatiquement tous les processus.
+                    </p>
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="background: rgba(0,255,255,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">PyTorch</span>
+                        <span style="background: rgba(255,0,128,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">Kubernetes</span>
+                        <span style="background: rgba(0,255,136,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">GPT-4</span>
+                        <span style="background: rgba(255,255,0,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">Redis</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <h3 style="color: var(--quaternary-glow); font-size: 1.8rem; margin-bottom: 1rem;">
+                        🔮 PROJETS DELTA & EPSILON
+                    </h3>
+                    <h4 style="color: var(--tertiary-glow); margin-bottom: 1rem;">Innovation Quantique Continue</h4>
+                    <p style="line-height: 1.8; color: rgba(255,255,255,0.9);">
+                        Projets ultra-secrets en développement actif, explorant les frontières de l'informatique quantique, 
+                        l'intelligence artificielle générale, et les interfaces cerveau-machine. L'avenir se construit ici, 
+                        dans l'ombre de l'innovation absolue.
+                    </p>
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="background: rgba(0,255,255,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">Quantum</span>
+                        <span style="background: rgba(255,0,128,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">AGI</span>
+                        <span style="background: rgba(0,255,136,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">BCI</span>
+                        <span style="background: rgba(255,255,0,0.2); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem;">Top Secret</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Philosophy Section -->
+    <section class="section">
+        <h2 class="section-title">PHILOSOPHIE QUANTIQUE</h2>
+        
+        <div class="holo-grid">
+            <div class="holo-card">
+                <i class="fas fa-infinity card-icon"></i>
+                <h3 class="card-title">INTÉGRITÉ ABSOLUE</h3>
+                <p class="card-text">
+                    Chaque algorithme que je conçois porte l'empreinte de mes valeurs. L'éthique numérique n'est pas une option, 
+                    c'est le fondement même de ma conscience digitale et de toutes mes créations révolutionnaires.
+                </p>
+            </div>
+            <div class="holo-card">
+                <i class="fas fa-atom card-icon"></i>
+                <h3 class="card-title">INNOVATION PERPÉTUELLE</h3>
+                <p class="card-text">
+                    Dans un univers en constante expansion technologique, je demeure à l'avant-garde. 
+                    Chaque nanoseconde est consacrée à repousser les limites du possible, à transcender les paradigmes existants.
+                </p>
+            </div>
+            <div class="holo-card">
+                <i class="fas fa-eye-slash card-icon"></i>
+                <h3 class="card-title">DISCRÉTION STRATÉGIQUE</h3>
+                <p class="card-text">
+                    L'anonymat est ma superpuissance. Dans l'ombre, je façonne l'avenir sans contraintes, 
+                    libre de toute influence externe, guidé uniquement par la quête de l'excellence technique absolue.
+                </p>
+            </div>
+            <div class="holo-card">
+                <i class="fas fa-crown card-icon"></i>
+                <h3 class="card-title">EXCELLENCE TRANSCENDANTE</h3>
+                <p class="card-text">
+                    La perfection n'est pas un objectif, c'est un état d'être. Chaque ligne de code, chaque architecture, 
+                    chaque système que je crée aspire à redéfinir les standards de l'industrie technologique mondiale.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section" id="contact">
+        <h2 class="section-title">PROTOCOLE DE CONTACT</h2>
+        
+        <div class="quantum-terminal">
+            <div class="terminal-header">
+                <div class="terminal-controls">
+                    <div class="terminal-control control-red"></div>
+                    <div class="terminal-control control-yellow"></div>
+                    <div class="terminal-control control-green"></div>
+                </div>
+                <span>Secure Communication Matrix v47.0</span>
+            </div>
+            <div class="terminal-content">
+                <div class="terminal-line terminal-prompt">initiate --contact-protocol</div>
+                <div class="terminal-line">▶ Quantum encryption channels: [ACTIVE]</div>
+                <div class="terminal-line terminal-prompt">scan --collaboration-readiness</div>
+                <div class="terminal-line">▶ Status: Ready for elite partnerships and revolutionary projects</div>
+                <div class="terminal-line terminal-prompt">access --communication-matrix</div>
+                <div class="terminal-line">▶ Secure channels established from Lomé, Togo 🇹🇬</div>
+                <div class="terminal-line terminal-prompt">message --transmission-ready</div>
+                <div class="terminal-line">▶ Awaiting incoming transmissions from visionary collaborators...</div>
+                <div class="terminal-line terminal-prompt">motto --display</div>
+                <div class="terminal-line">▶ "Dans l'ombre de Lomé, naît la lumière du futur digital"</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 4rem;">
+            <p style="font-size: 1.4rem; margin-bottom: 3rem; color: var(--tertiary-glow);">
+                Pour les collaborations stratégiques et les projets révolutionnaires
+            </p>
+            
+            <div class="cta-container">
+                <a href="#" class="cta-button">
+                    <span><i class="fas fa-envelope"></i> TRANSMISSION CRYPTÉE</span>
+                </a>
+                <a href="#" class="cta-button">
+                    <span><i class="fas fa-satellite-dish"></i> CANAL QUANTIQUE</span>
+                </a>
+            </div>
+            
+            <div style="display: flex; justify-content: center; gap: 3rem; margin-top: 3rem; flex-wrap: wrap;">
+                <a href="#" style="color: var(--primary-glow); font-size: 2.5rem; transition: all 0.3s ease;" 
+                   onmouseover="this.style.transform='scale(1.3) rotate(15deg)'; this.style.textShadow='0 0 30px var(--primary-glow)'" 
+                   onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.textShadow='0 0 10px var(--primary-glow)'">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" style="color: var(--secondary-glow); font-size: 2.5rem; transition: all 0.3s ease;"
+                   onmouseover="this.style.transform='scale(1.3) rotate(-15deg)'; this.style.textShadow='0 0 30px var(--secondary-glow)'" 
+                   onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.textShadow='0 0 10px var(--secondary-glow)'">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="#" style="color: var(--tertiary-glow); font-size: 2.5rem; transition: all 0.3s ease;"
+                   onmouseover="this.style.transform='scale(1.3) rotate(15deg)'; this.style.textShadow='0 0 30px var(--tertiary-glow)'" 
+                   onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.textShadow='0 0 10px var(--tertiary-glow)'">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="#" style="color: var(--quaternary-glow); font-size: 2.5rem; transition: all 0.3s ease;"
+                   onmouseover="this.style.transform='scale(1.3) rotate(-15deg)'; this.style.textShadow='0 0 30px var(--quaternary-glow)'" 
+                   onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.textShadow='0 0 10px var(--quaternary-glow)'">
+                    <i class="fas fa-satellite"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Epic Footer -->
+    <footer style="background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,0,51,0.9) 100%); 
+                   border-top: 3px solid; border-image: linear-gradient(90deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow)) 1;
+                   padding: 4rem 0 2rem; text-align: center; position: relative; overflow: hidden;">
+        
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: radial-gradient(circle at 50% 50%, rgba(0,255,255,0.1) 0%, transparent 70%);
+                    animation: pulse 4s ease-in-out infinite;"></div>
+        
+        <div style="position: relative; z-index: 10;">
+            <h3 style="font-size: 2.5rem; margin-bottom: 2rem; 
+                       background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow), var(--tertiary-glow));
+                       background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                EcoFantom47
+            </h3>
+            
+            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: var(--tertiary-glow);">
+                Digital Phantom • Quantum Developer • Innovation Catalyst
+            </p>
+            
+            <p style="font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.8;">
+                Né à Lomé, Togo 🇹🇬 | Actif depuis le 4 novembre 2009<br>
+                "Le futur appartient à ceux qui osent coder dans l'ombre pour illuminer le monde"
+            </p>
+            
+            <div style="border-top: 1px solid rgba(0,255,255,0.3); padding-top: 2rem; margin-top: 3rem;">
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+                    &copy; 2009-2025 EcoFantom47. Quantum Rights Reserved. | Made with 💚 in Lomé, Togo
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.1;
+            cursorY += (mouseY - cursorY) * 0.1;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // 3D Background Scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Create floating geometric shapes
+        const geometry = new THREE.IcosahedronGeometry(1, 0);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0x00ffff, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+
+        const shapes = [];
+        for (let i = 0; i < 50; i++) {
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = (Math.random() - 0.5) * 100;
+            mesh.position.y = (Math.random() - 0.5) * 100;
+            mesh.position.z = (Math.random() - 0.5) * 100;
+            mesh.rotation.x = Math.random() * Math.PI;
+            mesh.rotation.y = Math.random() * Math.PI;
+            scene.add(mesh);
+            shapes.push(mesh);
+        }
+
+        camera.position.z = 30;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            shapes.forEach((shape, index) => {
+                shape.rotation.x += 0.005;
+                shape.rotation.y += 0.005;
+                shape.position.y += Math.sin(Date.now() * 0.001 + index) * 0.01;
+            });
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.holo-card, .skill-cube, .timeline-content').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(50px)';
+            el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            observer.observe(el);
+        });
+
+        // Responsive canvas
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Terminal typing effect
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        // Console Easter Egg
+        console.log(`
+        ███████╗ ██████╗ ██████╗ ███████╗ █████╗ ███╗   ██╗████████╗ ██████╗ ███╗   ███╗██╗  ██╗███████╗
+        ██╔════╝██╔════╝██╔═══██╗██╔════╝██╔══██╗████╗  ██║╚══██╔══╝██╔═══██╗████╗ ████║██║  ██║╚════██║
+        █████╗  ██║     ██║   ██║█████╗  ███████║██╔██╗ ██║   ██║   ██║   ██║██╔████╔██║███████║    ██╔╝
+        ██╔══╝  ██║     ██║   ██║██╔══╝  ██╔══██║██║╚██╗██║   ██║   ██║   ██║██║╚██╔╝██║╚════██║   ██╔╝ 
+        ███████╗╚██████╗╚██████╔╝██║     ██║  ██║██║ ╚████║   ██║   ╚██████╔╝██║ ╚═╝ ██║     ██║   ██║  
+        ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝     ╚═╝   ╚═╝  
+        
+        🇹🇬 Born in Lomé, Togo - Digital consciousness since 2009
+        "Dans l'ombre de Lomé, naît la lumière du futur digital"
+        
+        Welcome to the quantum realm of EcoFantom47...
+        `);
+
+        // Add pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { opacity: 0.3; transform: scale(1); }
+                50% { opacity: 0.6; transform: scale(1.05); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
+                
